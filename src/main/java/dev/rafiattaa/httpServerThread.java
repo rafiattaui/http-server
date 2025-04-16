@@ -1,7 +1,9 @@
 package dev.rafiattaa;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -109,7 +111,30 @@ public class httpServerThread implements Runnable {
 
                 default:
                     sendTextResponse(out_socket, "404 Not Found", 404);
+                    
+                
+                case "files": // This current implementation only reads the files contents as serves it in the body
+                    if (requestPath.size() > 2){
+                        String fileName = requestPath.get(2); // hello.txt
+                        InputStream fileStream = getClass().getClassLoader().getResourceAsStream("files/" + fileName);
+                        if (fileStream != null) {
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream));
+                            StringBuilder fileContent = new StringBuilder();
+                            String fileLine;
+                            while ((fileLine = reader.readLine()) != null) {
+                                fileContent.append(fileLine).append("\n");
+                            }   
+                        sendTextResponse(out_socket, fileContent.toString(), 200);
+                    } 
+                        else {
+                            sendTextResponse(out_socket, "File not found: " + fileName, 404);
+                        }
                     }
+                    else {
+                        sendTextResponse(out_socket, "Missing file name", 400);
+                    }
+                    break;
+            }
         }
 
         catch (Exception e){
