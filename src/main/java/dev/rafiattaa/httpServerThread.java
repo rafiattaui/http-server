@@ -1,7 +1,6 @@
 package dev.rafiattaa;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,7 +46,7 @@ public class httpServerThread implements Runnable {
         try {
 
             int clientNumber = serverRef.getClientNumber();
-            System.out.println("Client " + clientNumber + " at " + socket.getInetAddress() + " has connected.");
+            serverRef.logger.info("Client " + clientNumber + " at " + socket.getInetAddress() + " has connected.");
 
             // Input and output streams
 
@@ -65,7 +64,7 @@ public class httpServerThread implements Runnable {
 
             // Print the entire request
             for (String l : rawRequest) {
-                System.out.println(l);
+                serverRef.logger.info(l);
             }
 
             Map<String, String> headers = new HashMap<>(); // Store header information, e.g., "Content-Type: text/plain"
@@ -88,7 +87,7 @@ public class httpServerThread implements Runnable {
             switch (endpoint) {
 
                 case "":
-                    System.out.println("Root request received!");
+                    serverRef.logger.info("Root request received!");
                     out_socket.write("HTTP/1.1 200 OK\r\n\r\n");
                     out_socket.flush();
                     break;
@@ -96,7 +95,7 @@ public class httpServerThread implements Runnable {
                 case "echo":
                     if (requestPath.size() > 2) {
                         String echoText = requestPath.get(2);
-                        System.out.println("Echo: " + echoText);
+                        serverRef.logger.info("Echo: " + echoText);
                         sendTextResponse(out_socket, echoText);
                     } else {
                         sendTextResponse(out_socket, "Missing echo text");
@@ -105,7 +104,7 @@ public class httpServerThread implements Runnable {
 
                 case "user-agent":
                     String userAgent = headers.getOrDefault("user-agent", "Unknown");
-                    System.out.println("User-Agent: " + userAgent);
+                    serverRef.logger.info("User-Agent: " + userAgent);
                     sendTextResponse(out_socket, userAgent);
                     break;
 
@@ -144,7 +143,7 @@ public class httpServerThread implements Runnable {
         finally { // At the end of sending a HTTP response, close the connection
             try {
                 socket.close();
-                System.out.println("Connection with client closed.\n");
+                serverRef.logger.info("Connection with client closed.\n");
             } 
 
             catch (IOException e) {

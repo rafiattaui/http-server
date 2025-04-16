@@ -1,17 +1,21 @@
 package dev.rafiattaa;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class httpServer {
     
     ServerSocket serverSocket;
 
+    protected final Logger logger = LoggerFactory.getLogger(httpServer.class);
+
     public httpServer(int port) throws IOException {
 
         serverSocket = new ServerSocket(port);
-        System.out.println("Server started at port: " + port);
-        System.out.println();
+        logger.info("Server started at port: " + port);
         
         while(true) {
             Socket socket = serverSocket.accept();
