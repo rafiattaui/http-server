@@ -1,0 +1,30 @@
+# Maven target build output
+/target/
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE/project files
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Other temp files
+*.tmp
+*.swp
+*.bak
+
+# Java compiled classes
+*.class
