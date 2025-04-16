@@ -33,3 +33,9 @@ Explanations are available inside the .py file
 python multiple-reqs.py
 ```
 ---
+
+## References
+
+- https://medium.com/@n3d/java-networking-basics-building-a-concurrent-tcp-server-77a313384f7d
+- https://www.baeldung.com/java-serversocket-simple-http-server
+- https://app.codecrafters.io/courses/http-server/
