@@ -133,6 +133,9 @@ public class httpServerThread implements Runnable {
                         sendTextResponse(out_socket, "Missing file name", 400);
                     }
                     break;
+                
+                case "about":
+                    sendTextResponse(out_socket, "Lightweight Java HTTP-Server", 200);
             }
         }
 
