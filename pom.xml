@@ -15,13 +15,13 @@
 
     <build>
     <plugins>
-      <!-- Plugin to run your server -->
+      <!-- Plugin to run server -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>dev.rafiattaa.httpServer</mainClass> <!-- Replace with your main class -->
+          <mainClass>dev.rafiattaa.httpServer</mainClass>
         </configuration>
       </plugin>
     </plugins>

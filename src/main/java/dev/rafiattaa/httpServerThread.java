@@ -118,7 +118,7 @@ public class httpServerThread implements Runnable {
 
         finally { // At the end of sending a HTTP response, close the connection
             try {
-                socket.close(); // 👈 important!
+                socket.close();
                 System.out.println("Connection with client closed.\n");
             } 
 

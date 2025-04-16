@@ -3,6 +3,19 @@ import threading
 import random
 import time
 
+
+"""
+This script simulates multiple concurrent HTTP clients sending random requests
+to a server. It uses Python's `socket` module to create raw TCP connections
+and `threading` to handle multiple clients simultaneously.
+
+Each client sends a random HTTP GET request to the server at a specified host
+and port. The paths for the requests are chosen randomly from a predefined list.
+The delay between consecutive requests from each client is also randomized
+within a specified range.
+
+"""
+
 # --- CONFIG ---
 HOST = "localhost"
 PORT = 4221
