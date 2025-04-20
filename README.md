@@ -10,6 +10,7 @@ A lightweight HTTP server built entirely using Java’s standard libraries. This
   - `/` – Returns a simple **200 OK** response.
   - `/echo/{text}` – Echoes back the provided `{text}`.
   - `/user-agent` – Responds with the client's `User-Agent` header.
+  - `/public/...` - Serves static files.
 - Manually parses HTTP headers and routes.
 - Returns proper HTTP status codes (`200 OK`, `404 Not Found`).
 - Multi-threaded: each client connection is handled in a separate thread.
@@ -31,6 +32,7 @@ mvn compile exec:java
 Explanations are available inside the .py file
 ```bash
 python multiple-reqs.py
+python get-filecontent.py
 ```
 ---
 
