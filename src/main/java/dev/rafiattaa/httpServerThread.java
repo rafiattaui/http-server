@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -20,11 +21,7 @@ public class httpServerThread implements Runnable {
         serverRef = server;
     }
 
-    private static void sendTextResponse(PrintWriter out, String body) throws IOException {
-        sendTextResponse(out, body, 200);
-    }
-
-    private static void sendTextResponse(PrintWriter out, String body, int statusCode) {
+    private static void sendTextResponse(PrintWriter out, String body, String type, int statusCode) throws IOException {
         String statusText = switch (statusCode) {
             case 200 -> "OK";
             case 404 -> "Not Found";
@@ -32,13 +29,29 @@ public class httpServerThread implements Runnable {
         };
 
         out.print("HTTP/1.1 " + statusCode + " " + statusText + "\r\n");
-        out.print("Content-Type: text/plain\r\n");
+        out.print("Content-Type: " + type + "\r\n");
         out.print("Content-Length: " + body.length() + "\r\n");
         out.print("\r\n"); // blank line separates headers and body
         out.print(body);
         out.flush();
     }
 
+    private static String checkType(String fileName) {
+        String extension = fileName.contains(".") ? fileName.substring(fileName.lastIndexOf(".") + 1) : "";
+    
+        return switch (extension.toLowerCase()) {
+            case "html", "htm" -> "text/html";
+            case "txt" -> "text/plain";
+            case "css" -> "text/css";
+            case "js" -> "application/javascript";
+            case "json" -> "application/json";
+            case "png" -> "image/png";
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "gif" -> "image/gif";
+            case "pdf" -> "application/pdf";
+            default -> "application/octet-stream"; // fallback for binary data
+        };
+    }
 
     @Override
     public void run(){
@@ -96,46 +109,49 @@ public class httpServerThread implements Runnable {
                     if (requestPath.size() > 2) {
                         String echoText = requestPath.get(2);
                         serverRef.logger.info("Echo: " + echoText);
-                        sendTextResponse(out_socket, echoText);
+                        sendTextResponse(out_socket, echoText, "text/plain", 200);
                     } else {
-                        sendTextResponse(out_socket, "Missing echo text");
+                        sendTextResponse(out_socket, "Missing echo text", "text/plain", 200);
                     }
                     break;
 
                 case "user-agent":
                     String userAgent = headers.getOrDefault("user-agent", "Unknown");
                     serverRef.logger.info("User-Agent: " + userAgent);
-                    sendTextResponse(out_socket, userAgent);
+                    sendTextResponse(out_socket, userAgent, "text/plain", 200);
                     break;
 
-                default:
-                    sendTextResponse(out_socket, "404 Not Found", 404);
-                    
                 
-                case "files": // This current implementation only reads the files contents as serves it in the body
+                case "public":
                     if (requestPath.size() > 2){
-                        String fileName = requestPath.get(2); // hello.txt
-                        InputStream fileStream = getClass().getClassLoader().getResourceAsStream("files/" + fileName);
+                        String fileName = requestPath.get(2); // e.g., index.html
+                        InputStream fileStream = getClass().getClassLoader().getResourceAsStream("public/" + fileName);
                         if (fileStream != null) {
-                            BufferedReader reader = new BufferedReader(new InputStreamReader(fileStream));
-                            StringBuilder fileContent = new StringBuilder();
-                            String fileLine;
-                            while ((fileLine = reader.readLine()) != null) {
-                                fileContent.append(fileLine).append("\n");
-                            }   
-                        sendTextResponse(out_socket, fileContent.toString(), 200);
-                    } 
-                        else {
-                            sendTextResponse(out_socket, "File not found: " + fileName, 404);
+                            String contentType = checkType(fileName); // check file extension for content-type
+                            byte[] fileBytes = fileStream.readAllBytes(); // read raw bytes of file
+
+                            OutputStream rawOut = socket.getOutputStream();
+                            PrintWriter headerOut = new PrintWriter(rawOut);
+                            
+                            headerOut.print("HTTP/1.1 200 OK\r\n");
+                            headerOut.print("Content-Type: " + contentType + "\r\n");
+                            headerOut.print("Content-Length: " + fileBytes.length + "\r\n");
+                            headerOut.print("\r\n");
+                            headerOut.flush();
+
+                            rawOut.write(fileBytes); // output raw bytes directly to file
+                            rawOut.flush();
+
+                        } else {
+                            sendTextResponse(out_socket, "File not found: " + fileName, "text/plain", 404);
                         }
-                    }
-                    else {
-                        sendTextResponse(out_socket, "Missing file name", 400);
+                    } else {
+                        sendTextResponse(out_socket, "Missing file name", "text/plain", 400);
                     }
                     break;
                 
                 case "about":
-                    sendTextResponse(out_socket, "Lightweight Java HTTP-Server", 200);
+                    sendTextResponse(out_socket, "Lightweight Java HTTP-Server", "text/plain", 200);
             }
         }
 
